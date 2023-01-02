@@ -108,4 +108,79 @@ async def on_raw_reaction_remove(payload):
                 raise e
 
 
+#
+# Moderation
+#
+
+# Purge messages
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def purge(ctx, num):
+    msg = []
+    async for x in ctx.channel.history(limit=int(num)):
+        msg.append(x)
+    await ctx.channel.delete_messages(msg)
+    print(num + ' messages removed from the channel')
+    warning = await ctx.send(num + ' messages removed from the channel')
+
+    # Wait to remove the warning message
+    await sleep(3)
+    await warning.delete()
+
+# Ban users
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def ban(ctx, user: discord.Member, reason=None):
+    await user.ban()
+    await ctx.send('The user has been banned\nReason: ' + str(reason))
+    print('A user has been banned')
+
+# Temp Ban users
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def tempban(ctx, user: discord.Member, time, d, reason=None):
+    await user.ban()
+    await ctx.send('The user has been banned for ' + str(time) + ' ' + str(d) +'\nReason: ' + str(reason))
+    print('A user has been banned')
+
+    if d == "s" or d == "seconds":
+        await asyncio.sleep(int(time))
+        user.unban()
+    elif d == "m" or d == "minutes":								
+        await asyncio.sleep(int(time*60))
+        user.unban()
+    elif d == "h" or d == "hours":
+        await asyncio.sleep(int(time*60*60))
+        user.unban()
+    elif d == "d" or d == "days":
+        await asyncio.sleep(int(time*60*60*24))
+        user.unban()
+
+# Kick users
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def kick(ctx, user: discord.Member, reason=None):
+    await user.kick()
+    await ctx.send('The user has been kicked from the server\nReason: ' + str(reason))
+    print('A user has been kicked')
+
+# Temp Mute users
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def mute(ctx, user: discord.Member, time, d, reason=None):
+    role = discord.utils.get(ctx.guild.roles, name="Muted")
+    await user.add_roles(role)
+    await ctx.send(str(user) + ' has been muted for ' + str(time) + ' ' + str(d) +'\nReason: ' + str(reason))
+
+    if d == "s" or d == "seconds":
+        await asyncio.sleep(int(time))
+    elif d == "m" or d == "minutes":								
+        await asyncio.sleep(int(time*60))
+    elif d == "h" or d == "hours":
+        await asyncio.sleep(int(time*60*60))
+    elif d == "d" or d == "days":
+        await asyncio.sleep(int(time*60*60*24))
+
+    await user.remove_roles(role)
+
 bot.run(TOKEN)
