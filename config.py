@@ -7,3 +7,6 @@ class Config:
     role_name = "Member"
     message_id = "1059202747502710784"
     channel_id = "1059202446301347841"
+
+    #gpt
+    openapikey = ""
